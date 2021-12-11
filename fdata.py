@@ -24,7 +24,7 @@ Public License for more details.
 import numpy as np
 from copy import copy, deepcopy
 import os,time,platform,shutil,sys
-from subprocess import Popen, PIPE, CREATE_NEW_CONSOLE
+from subprocess import Popen, PIPE
 from time import sleep
 from collections import Counter
 from matplotlib.patches import Rectangle
@@ -544,7 +544,7 @@ class fzone(object):						#FEHM zone object.
         plt.clf()
         fig = plt.figure(figsize=[8.275,11.7])
         ax = plt.axes(projection='3d')
-        ax.set_aspect('equal', 'datalim')
+        ax.set_aspect('auto', 'datalim')
         
         ax.set_xlabel(xlabel,size=font_size)
         ax.set_ylabel(ylabel,size=font_size)
@@ -707,7 +707,7 @@ class fzone(object):						#FEHM zone object.
         ax = plt.axes([0.15,0.15,0.7,0.7])
         if xlims: ax.set_xlim(xlims)
         if ylims: ax.set_ylim(ylims)
-        if equal_axes: ax.set_aspect('equal', 'datalim')
+        if equal_axes: ax.set_aspect('auto', 'datalim')
         CS = plt.contourf(X,Y,vals,levels)
         if clims: CS.vmin=clims[0]; CS.vmax=clims[1]
         if xlabel: plt.xlabel(xlabel,size=font_size)		
@@ -722,7 +722,7 @@ class fzone(object):						#FEHM zone object.
         for t in ax.get_yticklabels():
             t.set_fontsize(font_size)
                     
-        ax.set_aspect('equal', 'datalim')
+        ax.set_aspect('auto', 'datalim')
         extension, save_fname, pdf = save_name(save,variable='zone_topo'+str(self.index),time=1)
         plt.savefig(save_fname, dpi=200, facecolor='w', edgecolor='w',orientation='portrait', 
         format=extension,transparent=True, bbox_inches=None, pad_inches=0.1)
@@ -2936,7 +2936,7 @@ class fdata(object):						#FEHM data file.
     def read(self,filename='',gridfilename='',inconfilename='',full_connectivity=dflt.full_connectivity,skip=[]):			#Reads data from file.
         '''Read FEHM input file and construct fdata object.
         
-        :param filename: Name of FEHM input file. Alternatively, supplying 'fehmn.files' will cause PyFEHM to query this file for input, grid and restart file names if they are available.
+        :param filename: Name of FEHM input *.dat file. 
         :type filename: str
         :param gridfilename: Name of FEHM grid file.
         :type gridfilename: str
@@ -2949,8 +2949,8 @@ class fdata(object):						#FEHM data file.
         
         # set up paths
         if filename: self._path.filename = filename
-        if gridfilename: self.grid._path.filename = filename
-        if inconfilename: self.incon._path.filename = filename
+        if gridfilename: self.grid._path.filename = gridfilename
+        if inconfilename: self.incon._path.filename = inconfilename
         
         # THERE WILL ALWAYS BE A GRID PATH TO READ - INPUT FILES CANNOT BE READ WITHOUT A GRID
         self.grid.read(self.grid._path.full_path,full_connectivity=full_connectivity)
@@ -2976,7 +2976,7 @@ class fdata(object):						#FEHM data file.
                         [self._read_cont,self._read_macro,self._read_zonn,self._read_zonn,self._read_macro,
                          self._read_time,self._read_ctrl,self._read_iter,self._read_macro,self._read_macro,
                          self._read_boun,self._read_macro,self._read_strs,self._read_text,self._read_sol,
-                        self._read_nfinv,self._read_hist,self._read_histnode,self._read_carb,self._read_model,
+                         self._read_nfinv,self._read_hist,self._read_histnode,self._read_carb,self._read_model,
                          self._read_macro,self._read_nobr,self._read_flxz,self._read_rlpm,self._read_macro,
                          self._read_trac,self._read_model,self._read_model,self._read_vapl,self._read_adif,
                          self._read_ngas,self._read_flxo,self._read_head,self._read_flxn, self._read_air, self._read_air])))
