@@ -2985,11 +2985,11 @@ def fdiff( in1, in2, format='diff', times=[], variables=[], components=[], nodes
 		out._variables = variables
 		out._data = {}
 		for t in times:
-			if format is 'diff':
+			if format == 'diff':
 				out._data[t] = dict([(v,in1[t][v] - in2[t][v]) for v in variables])
-			elif format is 'relative':
+			elif format == 'relative':
 				out._data[t] = dict([(v,(in1[t][v] - in2[t][v])/np.abs(in2[t][v])) for v in variables])
-			elif format is 'percent':
+			elif format == 'percent':
 				out._data[t] = dict([(v,100*np.abs((in1[t][v] - in2[t][v])/in2[t][v])) for v in variables])
 		return out
 	
@@ -3034,15 +3034,15 @@ def fdiff( in1, in2, format='diff', times=[], variables=[], components=[], nodes
 				i = 0
 				diff = []
 				while i < len(times):
-					if format is 'diff':
+					if format == 'diff':
 						#Quick fix to handle ptrk files.
 						if isinstance(in1, fptrk):
 							diff.append(in1[v][n]-in2[v][n]) 
 						else:
 							diff.append(in1[v][n][i]-in2[v][n][i])	
-					elif format is 'relative':
+					elif format == 'relative':
 						diff.append((in1[t][v] - in2[t][v])/np.abs(in2[t][v])) 
-					elif format is 'percent':
+					elif format == 'percent':
 						diff.append(100*np.abs((in1[t][v] - in2[t][v])/in2[t][v])) 	
 					i = i + 1
 				if isinstance(in1, fptrk):
@@ -3072,17 +3072,17 @@ def fdiff( in1, in2, format='diff', times=[], variables=[], components=[], nodes
 		for tp in ['water','gas','tracer1','tracer2']:		
 			out._node[tp] = None
 		for cp in components:
-			if format is 'diff':
+			if format == 'diff':
 				if len(variables):
 					out._node[cp] = dict([(n,dict([(v,np.array(in1._node[cp][n][v]) - np.array(in2._node[cp][n][v])) for v in list(in1._node[cp][n].keys()) if v in variables])) for n in in1.nodes])
 				else:
 					out._node[cp] = dict([(n,dict([(v,np.array(in1._node[cp][n][v]) - np.array(in2._node[cp][n][v])) for v in list(in1._node[cp][n].keys())])) for n in in1.nodes])
-			elif format is 'relative':
+			elif format == 'relative':
 				if len(variables):
 					out._node[cp] = dict([(n,dict([(v,(np.array(in1._node[cp][n][v]) - np.array(in2._node[cp][n][v]))/np.abs(in2._node[cp][n][v])) for v in list(in1._node[cp][n].keys()) if v in variables])) for n in in1.nodes])
 				else:
 					out._node[cp] = dict([(n,dict([(v,(np.array(in1._node[cp][n][v]) - np.array(in2._node[cp][n][v]))/np.abs(in2._node[cp][n][v])) for v in list(in1._node[cp][n].keys())])) for n in in1.nodes])
-			elif format is 'percent':
+			elif format == 'percent':
 				if len(variables):
 					out._node[cp] = dict([(n,dict([(v,100*np.abs((np.array(in1._node[cp][n][v]) - np.array(in2._node[cp][n][v]))/in2._node[cp][n][v])) for v in list(in1._node[cp][n].keys()) if v in variables])) for n in in1.nodes])
 				else:

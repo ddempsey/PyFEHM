@@ -1138,6 +1138,8 @@ def mco2(P,T,nc=0.):
         P = pressure (MPa)
         T = tempearture (degC)
         nc = NaCl content (mol/kg)
+
+        return solubility in kg CO2 / kg H2O
     '''
 
     # calculate the dissolved CO2 concentration based on Duan (2003) eqn.
@@ -1258,10 +1260,27 @@ def mco2(P,T,nc=0.):
 
     return mco2
 
+def dens_co2(P,T):
+    Mco2=0.044 # kg/mol
+    rho=dens(P,T)[0][0]  # kg/m3
+    c=mco2(P,T) #kg co2/ kg h2o
+    c=c*rho/Mco2 # mol/m3
+    Vphi=(37.51-9.585e-2*T+8.74e-4*T**2-5.044e-7*T**3)/(100**3) #apparent molar volume
+    rho_co2=rho+Mco2*c-c*rho*Vphi # density
+    print(rho,rho_co2,(rho_co2/rho-1.)*100)    
+
 def test_co2_sol():
-    P = 1.
-    T = 30.
-    m = mco2(P,T)
+    P = 5.
+    T = 45.
+    #print(mco2(0.1,25),mco2(50.,100))
+    print(mco2(5.,140), mco2(5.,140)*(1/44)/(1./18))
+    dens_co2(5,140)
+    #print(mco2(0.1,20))
+    # print(mco2(1,25)*18/44*10000,mco2(50.,100)*18/44*10000)
+    # print(mco2(1,25)*18/44,mco2(50.,100)*18/44)
+    #print(mco2(1.96,140), mco2(5,140)/mco2(1.96,140), mco2(5,45)/mco2(1.96,140), mco2(0.3,45)/mco2(1.96,140))
+    
+    return
     from matplotlib import pyplot as plt
     f,ax = plt.subplots(1,1)
     P = np.linspace(1,200,101)
@@ -1272,8 +1291,21 @@ def test_co2_sol():
         ax.plot(T, [mco2(P,Ti-273.15,0)/44.e-3 for Ti in T], 'k-')
     plt.show()
 
+def check_enthalpy_formulation():
+    P,T = [5, 100.]
+    rho = dens(P,T)[-1][0]
+    drho_dP = dens(P,T,'P')[-1][0]
+    drho_dT = dens(P,T,'T')[-1][0]
+    h = enth(P,T)[-1][0]
+    dh_dP = enth(P,T,'P')[-1][0]
+    dh_dT = enth(P,T,'T')[-1][0]
+
+    print(rho, drho_dP, drho_dT, h, dh_dP, dh_dT)
+    print(dh_dP, h*drho_dP, -h/rho*drho_dP, 1./rho-P/rho**2*drho_dP)
+
 def run_tests():
     test_co2_sol()
+    # check_enthalpy_formulation()
 
 if __name__ == "__main__":
     run_tests()
