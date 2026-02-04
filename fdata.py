@@ -254,7 +254,7 @@ class fzone(object):						#FEHM zone object.
     """
     __slots__ = ['_index','_type','_points','_file','_name','_parent','_nodelist','_file','_permeability',
             '_conductivity','_density','_specific_heat','_porosity','_youngs_modulus','_poissons_ratio',
-            '_thermal_expansion','_pressure_coupling','_Pi','_Ti','_Si','_fixedT','_fixedP','_updateFlag','_silent']
+            '_thermal_expansion','_pressure_coupling','_Pi','_Ti','_Si','_fixedT','_fixedP','_fixedQ','_updateFlag','_silent']
     def __init__(self,index=None,type='',points=[],nodelist=[],file='',name = ''):
         self._index=None
         self._silent = dflt.silent
@@ -286,6 +286,7 @@ class fzone(object):						#FEHM zone object.
         self._Si = None
         self._fixedT = None
         self._fixedP = None
+        self._fixedQ = None
         self._updateFlag = True
     def __repr__(self): return 'zn'+str(self.index)	
     def __getstate__(self):
@@ -349,6 +350,26 @@ class fzone(object):						#FEHM zone object.
             return
         self._parent.add(fmacro('hflx',zone=self,param=(('heat_flow',T),('multiplier',multiplier)),file=file))
         self._fixedT = T
+    def fix_heating_rate(self, Q, file=None):
+        ''' Applies a fixed heating rate to nodes within this zone. Uses the HFLX macro with
+            multiplier=0 to ensure a constant heat flow rate (not temperature-dependent).
+
+            :param Q: Heat flow rate in MW. Positive = heat INTO reservoir, negative = heat OUT.
+            :type Q: fl64
+            :param file: Name of auxiliary file to save macro.
+            :type file: str
+
+            Note: FEHM's internal convention is negative=heat in, but this method uses the more
+            intuitive convention of positive=heat in. The sign is converted internally.
+        '''
+        if not self._parent:
+            pyfehm_print('fix_heating_rate() only available if zone associated with fdata() object',self._silent)
+            return
+        # FEHM convention: negative heat_flow = heat INTO reservoir
+        # User convention: positive Q = heat INTO reservoir
+        # So we negate Q for FEHM
+        self._parent.add(fmacro('hflx',zone=self,param=(('heat_flow',-Q),('multiplier',0.0)),file=file))
+        self._fixedQ = Q
     def fix_pressure(self,P=0, T=30., impedance=1.e6, file = None):
         ''' Fixes pressures at nodes within this zone. Pressures fixed by adding a FLOW macro with high
             impedance.

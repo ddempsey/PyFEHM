@@ -11,6 +11,7 @@ import os
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
 
 # Add parent directory to path for PyFEHM imports
 PYFEHM_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -26,7 +27,7 @@ from fpost import fhistory
 
 def compute_compressibility(P, T):
     """
-    Compute isothermal compressibility of water: β = (1/ρ)(dρ/dP)
+    Compute isothermal compressibility of water: beta = (1/ρ)(dρ/dP)
 
     Parameters:
         P: Pressure in MPa
@@ -70,8 +71,8 @@ def run_mass_injection_test(work_dir='test_mass'):
     Physics:
         - Closed system, isothermal (approximately)
         - Mass injection rate: ṁ kg/s
-        - dP/dt = ṁ / (V_pore × ρ × β)
-        - where V_pore = φ × V, β = compressibility
+        - dP/dt = ṁ / (V_pore × ρ(P) × beta(P))
+        - where V_pore = φ × V, beta = compressibility (pressure-dependent)
     """
     print("\n" + "="*60)
     print("TEST 1: Mass Injection - Compressibility Verification")
@@ -86,39 +87,54 @@ def run_mass_injection_test(work_dir='test_mass'):
     T0 = 25.0  # initial temperature (°C)
 
     # Compute compressibility at initial conditions
-    beta, rho = compute_compressibility(P0, T0)
+    beta0, rho0 = compute_compressibility(P0, T0)
     print(f"\nInitial conditions:")
     print(f"  P0 = {P0} MPa")
     print(f"  T0 = {T0} °C")
     print(f"  Porosity = {phi}")
     print(f"  Pore volume = {V_pore} m³")
-    print(f"  Water density = {rho:.2f} kg/m³")
-    print(f"  Compressibility = {beta:.6e} 1/MPa")
+    print(f"  Water density = {rho0:.2f} kg/m³")
+    print(f"  Compressibility = {beta0:.6e} 1/MPa")
 
     # Mass injection rate (kg/s) - use very small rate for reasonable dP
     # Target: ~1 MPa increase over 1 day
-    # dP/dt = ṁ_total / (V_pore × ρ × β)
-    # ṁ_total = dP/dt × V_pore × ρ × β
+    # dP/dt = ṁ_total / (V_pore × ρ × beta)
+    # ṁ_total = dP/dt × V_pore × ρ × beta
     # NOTE: FEHM flow macro applied to zone 0 applies rate to EACH of the 8 nodes
     n_nodes = 8  # 2x2x2 grid
     target_dP_per_day = 1.0  # MPa/day
-    mass_rate_total = target_dP_per_day / 86400 * V_pore * rho * beta  # total kg/s
+    mass_rate_total = target_dP_per_day / 86400 * V_pore * rho0 * beta0  # total kg/s
     mass_rate_per_node = mass_rate_total / n_nodes  # rate per node
 
-    # Expected pressure rise rate (based on total injection)
-    dP_dt_expected = mass_rate_total / (V_pore * rho * beta)  # MPa/s
-    dP_dt_expected_per_day = dP_dt_expected * 86400  # MPa/day
+    # Expected pressure rise rate assuming CONSTANT compressibility (old method)
+    dP_dt_constant = mass_rate_total / (V_pore * rho0 * beta0)  # MPa/s
+    dP_dt_constant_per_day = dP_dt_constant * 86400  # MPa/day
 
     print(f"\nTotal mass injection rate = {mass_rate_total:.6e} kg/s")
     print(f"Rate per node = {mass_rate_per_node:.6e} kg/s")
-    print(f"Expected dP/dt = {dP_dt_expected:.6e} MPa/s")
-    print(f"Expected dP/dt = {dP_dt_expected_per_day:.4f} MPa/day")
 
     # Simulation time (days)
     tf = 1.0  # days
-    expected_dP = dP_dt_expected_per_day * tf
+    expected_dP_constant = dP_dt_constant_per_day * tf
+
+    # Integrate ODE with VARIABLE compressibility: dP/dt = ṁ / (V_pore × ρ(P) × beta(P))
+    def dP_dt_ode(t, P):
+        """ODE for pressure evolution with pressure-dependent compressibility."""
+        beta_P, rho_P = compute_compressibility(P[0], T0)
+        return mass_rate_total / (V_pore * rho_P * beta_P)
+
+    # Solve ODE
+    t_span = (0, tf * 86400)  # convert days to seconds
+    t_eval = np.linspace(0, tf * 86400, 100)
+    sol = solve_ivp(dP_dt_ode, t_span, [P0], t_eval=t_eval, method='RK45')
+
+    expected_P_variable = sol.y[0]
+    expected_time_days = sol.t / 86400
+    expected_dP_variable = expected_P_variable[-1] - P0
+
     print(f"\nSimulation time = {tf} days")
-    print(f"Expected pressure increase = {expected_dP:.4f} MPa")
+    print(f"Expected dP (constant beta) = {expected_dP_constant:.6f} MPa")
+    print(f"Expected dP (variable beta) = {expected_dP_variable:.6f} MPa")
 
     # Create simulation
     dat = fdata(work_dir=work_dir)
@@ -231,19 +247,23 @@ def run_mass_injection_test(work_dir='test_mass'):
     # Compute results
     P_final = pressure[-1]
     dP_actual = P_final - P0
-    dP_dt_actual = dP_actual / tf
 
     print(f"\nResults:")
     print(f"  Final pressure = {P_final:.6f} MPa")
     print(f"  Actual dP = {dP_actual:.6f} MPa")
-    print(f"  Expected dP = {expected_dP:.6f} MPa")
-    print(f"  Ratio (actual/expected) = {dP_actual/expected_dP:.4f}")
+    print(f"  Expected dP (constant beta) = {expected_dP_constant:.6f} MPa")
+    print(f"  Expected dP (variable beta) = {expected_dP_variable:.6f} MPa")
+    print(f"  Ratio (actual/constant beta) = {dP_actual/expected_dP_constant:.6f}")
+    print(f"  Ratio (actual/variable beta) = {dP_actual/expected_dP_variable:.6f}")
 
     return {
         'time': time,
         'pressure': pressure,
         'temperature': temperature,
-        'expected_dP_dt': dP_dt_expected_per_day,
+        'expected_dP_constant': expected_dP_constant,
+        'expected_dP_variable': expected_dP_variable,
+        'expected_time_days': expected_time_days,
+        'expected_P_variable': expected_P_variable,
         'P0': P0,
         'T0': T0,
     }
@@ -358,14 +378,11 @@ def run_heat_injection_test(work_dir='test_heat'):
     ))
     dat.add(pres)
 
-    # Heat injection using hflx macro
-    # heat_flow is in MW for 3D problems
-    # Note: hflx is applied to each node in zone 0, so use per-node rate
-    hflx = fmacro('hflx', zone=0, param=(
-        ('heat_flow', Q_per_node_MW),  # MW per node
-        ('multiplier', 1.0),  # multiplier = 1 for actual heat flux
-    ))
-    dat.add(hflx)
+    # Heat injection using fix_heating_rate() method on zone 0
+    # This method ensures multiplier=0 for fixed heat flow (not temperature-dependent)
+    # and uses intuitive sign convention: positive = heat INTO reservoir
+    # Note: applied to zone 0, which distributes across all 8 nodes
+    dat.zone[0].fix_heating_rate(Q_per_node_MW)  # MW per node, positive = heat in
 
     # Time control
     dat.tf = tf
@@ -463,12 +480,16 @@ def create_summary_plot(mass_results, heat_results, save_path='test_single_block
         time = mass_results['time']
         pressure = mass_results['pressure']
         P0 = mass_results['P0']
-        dP_dt = mass_results['expected_dP_dt']
+        expected_dP_constant = mass_results['expected_dP_constant']
+        expected_time_days = mass_results['expected_time_days']
+        expected_P_variable = mass_results['expected_P_variable']
 
-        expected_P = P0 + dP_dt * np.array(time)
+        # Linear expectation (constant compressibility)
+        expected_P_constant = P0 + (expected_dP_constant / time[-1]) * np.array(time)
 
-        ax1.plot(time, pressure, 'b-', linewidth=2, label='Simulation')
-        ax1.plot(time, expected_P, 'r--', linewidth=2, label='Expected (linear)')
+        ax1.plot(time, pressure, 'b-', linewidth=2, label='FEHM Simulation')
+        ax1.plot(time, expected_P_constant, 'r--', linewidth=2, label='Expected (constant beta)')
+        ax1.plot(expected_time_days, expected_P_variable, 'g:', linewidth=2, label='Expected (variable beta)')
         ax1.set_xlabel('Time (days)')
         ax1.set_ylabel('Pressure (MPa)')
         ax1.set_title('Mass Injection Test: Pressure Rise')
@@ -477,22 +498,24 @@ def create_summary_plot(mass_results, heat_results, save_path='test_single_block
     else:
         ax1.text(0.5, 0.5, 'Mass test failed', ha='center', va='center', transform=ax1.transAxes)
 
-    # Plot 2: Mass injection - Pressure error
+    # Plot 2: Mass injection - Pressure error (vs variable beta expectation)
     ax2 = axes[0, 1]
     if mass_results is not None:
         time = mass_results['time']
         pressure = mass_results['pressure']
         P0 = mass_results['P0']
-        dP_dt = mass_results['expected_dP_dt']
+        expected_time_days = mass_results['expected_time_days']
+        expected_P_variable = mass_results['expected_P_variable']
 
-        expected_P = P0 + dP_dt * np.array(time)
-        error_pct = (pressure - expected_P) / (expected_P - P0 + 1e-10) * 100
+        # Interpolate expected variable-beta pressure to simulation times
+        expected_P_interp = np.interp(time, expected_time_days, expected_P_variable)
+        error_pct = (pressure - expected_P_interp) / (expected_P_interp - P0 + 1e-10) * 100
 
         ax2.plot(time, error_pct, 'b-', linewidth=2)
         ax2.axhline(y=0, color='r', linestyle='--', alpha=0.5)
         ax2.set_xlabel('Time (days)')
         ax2.set_ylabel('Relative Error (%)')
-        ax2.set_title('Mass Injection Test: Pressure Error')
+        ax2.set_title('Mass Injection Test: Error vs Variable beta')
         ax2.grid(True, alpha=0.3)
     else:
         ax2.text(0.5, 0.5, 'Mass test failed', ha='center', va='center', transform=ax2.transAxes)
@@ -575,14 +598,13 @@ def main():
     if mass_results is not None:
         P_final = mass_results['pressure'][-1]
         P0 = mass_results['P0']
-        dP_dt = mass_results['expected_dP_dt']
-        tf = mass_results['time'][-1]
-        expected_dP = dP_dt * tf
+        expected_dP_constant = mass_results['expected_dP_constant']
+        expected_dP_variable = mass_results['expected_dP_variable']
         actual_dP = P_final - P0
         print(f"\nMass Injection Test:")
-        print(f"  Expected dP: {expected_dP:.6f} MPa")
-        print(f"  Actual dP:   {actual_dP:.6f} MPa")
-        print(f"  Agreement:   {actual_dP/expected_dP*100:.1f}%")
+        print(f"  Actual dP:                {actual_dP:.6f} MPa")
+        print(f"  Expected dP (constant beta): {expected_dP_constant:.6f} MPa  ->  {actual_dP/expected_dP_constant*100:.2f}%")
+        print(f"  Expected dP (variable beta): {expected_dP_variable:.6f} MPa  ->  {actual_dP/expected_dP_variable*100:.2f}%")
     else:
         print("\nMass Injection Test: FAILED")
 
