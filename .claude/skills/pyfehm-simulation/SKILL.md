@@ -14,10 +14,57 @@ Use this skill when:
 | Resource | Purpose |
 |----------|---------|
 | `SIMULATION_CHECKLIST.md` | Minimum requirements for valid simulation |
-| `MACROS.md` | Common macros with usage examples |
+| `MACROS.md` | Common macros with PyFEHM usage examples |
+| `macros/INDEX.md` | Detailed FEHM macro reference (input file format) |
+| `macros/*.md` | Individual macro documentation from FEHM manual |
 | `ERROR_PATTERNS.md` | Known errors and diagnostic steps |
 | `TIPS.md` | Lessons learned from past sessions |
 | `equations/*.md` | FEHM physics and governing equations |
+
+---
+
+## When to Consult Individual Macro Files
+
+The `macros/` directory contains detailed documentation for each FEHM macro. **Read `macros/<macro_name>.md` when:**
+
+### Setting Up a New Macro
+- Check parameter meanings, units, and sign conventions
+- Understand required vs optional parameters
+- See input format examples
+
+### Macro Has Multiple Modes
+Many macros behave **completely differently** based on parameter values:
+- `hflx`: `multiplier=0` → fixed heat flow; `multiplier>0` → temperature-dependent heat flow
+- `flow`: `impedance=0` → fixed rate; `impedance>0` → pressure-dependent rate
+- `pres`: different input formats for saturated vs two-phase conditions
+
+**WARNING:** Getting these modes wrong can cause simulation crashes or silently wrong results.
+
+### Debugging Unexpected Results
+When a simulation runs but produces wrong values:
+1. Identify which macro controls the problematic behavior
+2. Read `macros/<macro_name>.md` to verify parameter interpretation
+3. Check sign conventions (e.g., `hflx`: negative = heat INTO reservoir)
+
+### PyFEHM Parameter Names Are Unclear
+PyFEHM uses descriptive names that may not match FEHM names:
+- PyFEHM `'multiplier'` → FEHM `QFLXM`
+- PyFEHM `'impedance'` → FEHM `AIPED`
+
+The macro files document the FEHM parameter names and their exact meanings.
+
+### What Each Macro File Contains
+- **Input format**: exact syntax for the FEHM input file
+- **Parameter table**: all parameters with types, defaults, and descriptions
+- **Physics**: equations and behavior for different parameter combinations
+- **Examples**: sample input blocks
+- **Notes**: gotchas, common mistakes, related macros
+
+### Quick Lookup
+Start with `macros/INDEX.md` which lists all macros organized by:
+- Required vs optional
+- Category (material properties, boundary conditions, output, etc.)
+- Links to individual documentation files
 
 ---
 
@@ -118,14 +165,25 @@ Re-read `SIMULATION_CHECKLIST.md`. Missing components often cause cryptic failur
 - No permeability → no flow → unexpected behavior
 - Inconsistent units → wildly wrong numbers
 
-### Step 4: Consult Physics
+### Step 4: Check Macro Documentation
+If the error involves a specific macro (e.g., `hflx`, `flow`, `pres`):
+1. Read `macros/<macro_name>.md` for that macro
+2. Verify parameter values match intended behavior
+3. Check for multi-mode macros where parameter combinations change behavior
+4. Confirm sign conventions (positive/negative meanings)
+
+**Example:** A simulation crashed with "timestep less than daymin" when using `hflx`.
+Reading `macros/hflx.md` revealed that `multiplier=1.0` triggers temperature-dependent
+mode (extracting ~25 MW) instead of the intended fixed heat flow mode (`multiplier=0`).
+
+### Step 5: Consult Physics
 If errors relate to unexpected physical behavior, read relevant equations:
 - `equations/FLOW_ENERGY.md` for mass/energy conservation
 - `equations/CONSTITUTIVE.md` for property models
 - `equations/TRANSPORT.md` for solute/particle issues
 - `equations/FRACTURE.md` for dual porosity problems
 
-### Step 5: Apply Failure Protocol
+### Step 6: Apply Failure Protocol
 **After 2-3 consecutive failed attempts:**
 1. **STOP** attempting automatic fixes
 2. Summarize what was tried and why it failed
@@ -233,8 +291,15 @@ if result.returncode != 0:
 │   ├── TRANSPORT.md            # Solute, reactive transport, particles
 │   ├── CONSTITUTIVE.md         # EOS, relative perm, capillary pressure
 │   └── FRACTURE.md             # Dual porosity/double permeability
+├── macros/                     # Detailed FEHM macro reference (from UM)
+│   ├── INDEX.md                # Macro index and quick reference
+│   ├── boun.md                 # Time-dependent boundary conditions
+│   ├── cond.md                 # Thermal conductivity
+│   ├── cont.md                 # Contour output control
+│   ├── coor.md                 # Node coordinates
+│   └── ...                     # Many more macro files
 ├── SIMULATION_CHECKLIST.md     # Required simulation components
-├── MACROS.md                   # Common macros and usage
+├── MACROS.md                   # Common macros with PyFEHM examples
 ├── TIPS.md                     # Appendable troubleshooting tips
 └── ERROR_PATTERNS.md           # Known error patterns and solutions
 ```
