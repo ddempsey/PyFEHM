@@ -187,7 +187,7 @@ dat.zone['bottom'].hflx(heat_flux=0.06)  # 60 mW/m² typical
 
 ### Zone Shortcuts for Fixed Conditions
 
-**Purpose**: Fix pressure and/or temperature at boundary.
+**Purpose**: Fix pressure, temperature, or heat input at boundary using safe wrapper methods.
 
 **PyFEHM**:
 ```python
@@ -197,9 +197,19 @@ dat.zone['inlet'].fix_pressure(12)  # MPa
 # Fix pressure and temperature
 dat.zone['inlet'].fix_pressure(12, temperature=30)
 
-# Fix temperature only
+# Fix temperature only (uses hflx with high multiplier internally)
 dat.zone['boundary'].fix_temperature(100)  # °C
+
+# Fix heating rate (uses hflx with multiplier=0 internally)
+# Positive Q = heat INTO reservoir, negative = heat OUT
+dat.zone['heater'].fix_heating_rate(0.001)  # 1 kW = 0.001 MW
 ```
+
+**Why use these methods?**
+- `fix_heating_rate()` ensures `multiplier=0` for fixed heat flow (avoids accidental temperature-dependent mode)
+- `fix_temperature()` uses high multiplier to maintain constant temperature
+- `fix_pressure()` uses high impedance to maintain constant pressure
+- These methods handle FEHM's sign conventions internally
 
 ### `boun` - Time-Varying Boundaries
 

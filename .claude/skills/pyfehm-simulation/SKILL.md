@@ -311,3 +311,37 @@ if result.returncode != 0:
 - PyFEHM documentation and examples in the repository
 - FEHM user manual for detailed macro syntax
 - `fdata.py`, `fgrid.py`, `fzone.py` for implementation details
+
+---
+
+## Skill Maintenance
+
+**IMPORTANT**: When modifying PyFEHM code, update this skill to stay in sync.
+
+### When to Update the Skill
+
+Update skill documentation when:
+- **Adding new methods** to `fzone`, `fdata`, or other classes (e.g., `fix_heating_rate()`)
+- **Changing method signatures** or behavior
+- **Discovering new error patterns** during debugging
+- **Learning lessons** that should be preserved in `TIPS.md`
+
+### What to Update
+
+| Change Type | Update Location |
+|-------------|-----------------|
+| New zone method (e.g., `fix_*`) | `MACROS.md` → Zone Shortcuts section |
+| New macro support | `MACROS.md` → relevant section |
+| New error pattern | `ERROR_PATTERNS.md` |
+| Debugging lesson | `TIPS.md` |
+| New macro file | `macros/INDEX.md` + create `macros/<name>.md` |
+
+### Why This Matters
+
+Without updates, the skill teaches outdated patterns:
+- Users manually configure macros instead of using safe wrapper methods
+- Hard-won lessons from debugging sessions are lost
+- New features remain undiscovered
+
+**Example**: We added `fix_heating_rate()` to prevent the `hflx` multiplier bug, but without
+documenting it here, future sessions would still use the risky manual approach.
