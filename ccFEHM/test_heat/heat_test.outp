@@ -1,0 +1,144 @@
+FEHM V3.3.0win32 15-08-24 QA:0   02/02/2026    20:55:31
+
+Copyright  2015.   Los Alamos National Security, LLC.  This material was
+produced under U.S. Government contract DE-AC52-06NA25396 for Los Alamos
+National  Laboratory  (LANL),  which is operated by  Los Alamos National
+Security, LLC  for the U. S. Department of Energy.  The U. S. Government
+has rights to use, reproduce, and distribute this software.  Neither the
+U. S. Government nor Los Alamos National Security, LLC or persons acting
+on their behalf,  make any warranty,  express or implied, or assumes any
+liability for the accuracy, completeness, or usefulness of the software,
+any information pertaining to the software,  or  represents that its use
+would not infringe privately owned rights.
+
+The  software  being licensed  may  be Export Controlled.  It may not be
+distributed  or  used by individuals  or entities prohibited from having
+access to the software package, pursuant to United States export control
+laws and regulations. An export control review and determination must be
+completed before LANS will provide access to the identified Software.
+
+
+ # heat_test.dat                                                                 
+
+
+
+ File purpose - Variable - Unit number - File name
+
+    control       - iocntl -  1 - fehmn.files                                                                                         
+    input         - inpt   - 11 - heat_test.dat                                                                                       
+    geometry      - incoor - 12 - C:\Users\dde62\code\PyFEHM\ccFEHM\test_heat\grid.inp                                                
+    zone          - inzone - 11 - heat_test.dat                                                                                       
+    output        - iout   - 14 - heat_test.outp                                                                                      
+    initial state - iread  -  0 - not using                                                                                           
+    final state   - isave  - 16 - heat_test.rsto                                                                                      
+    time history  - ishis  -  0 - not using                                                                                           
+    time his.(tr) - istrc  -  0 - not using                                                                                           
+    contour plot  - iscon  -  0 - not using                                                                                           
+    con plot (dp) - iscon1 -  0 - not using                                                                                           
+    fe coef stor  - isstor -  0 - not using                                                                                           
+    input check   - ischk  - 22 - heat_test.chk                                                                                       
+ Value provided to subroutine user: not using
+
+ **** input title : coor **** incoor =  12 ****
+ **** input title : elem **** incoor =  12 ****
+ **** input title : stop **** incoor =  12 ****
+ **** input title : sol  **** inpt =  11 ****
+ **** input title : cont **** inpt =  11 ****
+ **** contour format defined  : surf ****
+ **** input title : node **** inpt =  11 ****
+ **** input title : hist **** inpt =  11 ****
+ **** input title : pres **** inpt =  11 ****
+ **** input title : hflx **** inpt =  11 ****
+ **** input title : perm **** inpt =  11 ****
+ **** input title : rock **** inpt =  11 ****
+ **** input title : cond **** inpt =  11 ****
+ **** input title : time **** inpt =  11 ****
+ **** input title : ctrl **** inpt =  11 ****
+ **** input title : iter **** inpt =  11 ****
+ **** input title : stop **** inpt =  11 ****
+ >>>>>> Starting connectivity calcs <<<<<< 
+ >>>>>> Finished connectivity calcs <<<<<< 
+ >>>>>> Starting FE coef. calcs <<<<<< 
+ calcs for coef number =     1 percent complete =    10
+ calcs for coef number =     1 percent complete =    20
+ calcs for coef number =     1 percent complete =    30
+ calcs for coef number =     1 percent complete =    40
+ calcs for coef number =     1 percent complete =    50
+ calcs for coef number =     1 percent complete =    60
+ calcs for coef number =     4 percent complete =    10
+ calcs for coef number =     4 percent complete =    20
+ calcs for coef number =     4 percent complete =    30
+ calcs for coef number =     4 percent complete =    40
+ calcs for coef number =     4 percent complete =    50
+ calcs for coef number =     4 percent complete =    60
+ >>>>>> Finished FE coef. calcs <<<<<< 
+ gmres method chosen 
+ >>>reading nop from file nop.temp .....
+ >>>reading nop was succesful .....
+
+ storage needed for ncon             55 available         55
+ storage needed for nop              59 available         59
+ storage needed for a matrix        184 available        184
+ storage needed for b matrix        200 available        640
+ storage for acceleration       144 available        144
+ storage available for b matrix resized to        200<<<<<<
+
+
+ time for reading input, forming coefficients   0.00    
+
+
+
+ **** analysis of input data on file heat_test.chk                    ****
+
+time step =        1 time step size =  0.10000000000000E-01
+out of bounds : node        1 x =    0.000     y =    0.000     z =    0.000    
+ p =  -10.1911137     t = 0.963205580E-02 s =   1.00000000    
+ porosity =  0.100000000    
+
+ timestep =      1 timestep restarted because of balance errors or variable out of bounds
+    
+#### largest N-R corrections, timestep        1 ####
+ EQ1 R=   11.19     node=      5 x= 0.000     y= 0.000     z= 1.000    
+ EQ2 R=   24.99     node=      2 x= 1.000     y= 0.000     z= 0.000    
+time step =        1 time step size =  0.20000000000000E-02
+out of bounds : node        1 x =    0.000     y =    0.000     z =    0.000    
+ p =  -10.1739000     t = 0.480712297E-01 s =   1.00000000    
+ porosity =  0.100000000    
+
+ timestep =      1 timestep restarted because of balance errors or variable out of bounds
+    
+#### largest N-R corrections, timestep        1 ####
+ EQ1 R=   11.17     node=      5 x= 0.000     y= 0.000     z= 1.000    
+ EQ2 R=   24.95     node=      1 x= 0.000     y= 0.000     z= 0.000    
+time step =        1 time step size =  0.40000000000000E-03
+out of bounds : node        1 x =    0.000     y =    0.000     z =    0.000    
+ p =  -10.0886196     t = 0.238506869     s =   1.00000000    
+ porosity =  0.100000000    
+
+ timestep =      1 timestep restarted because of balance errors or variable out of bounds
+    
+#### largest N-R corrections, timestep        1 ####
+ EQ1 R=   11.09     node=      5 x= 0.000     y= 0.000     z= 1.000    
+ EQ2 R=   24.76     node=      4 x= 1.000     y= 1.000     z= 0.000    
+time step =        1 time step size =  0.80000000000000E-04
+out of bounds : node        1 x =    0.000     y =    0.000     z =    0.000    
+ p =  -9.68102630     t =  1.14868509     s =   1.00000000    
+ porosity =  0.100000000    
+
+ timestep =      1 timestep restarted because of balance errors or variable out of bounds
+    
+#### largest N-R corrections, timestep        1 ####
+ EQ1 R=   10.68     node=      7 x= 0.000     y= 1.000     z= 1.000    
+ EQ2 R=   23.85     node=      1 x= 0.000     y= 0.000     z= 0.000    
+time step =        1 time step size =  0.16000000000000E-04
+out of bounds : node        1 x =    0.000     y =    0.000     z =    0.000    
+ p =  -8.02274470     t =  4.85171844     s =   1.00000000    
+ porosity =  0.100000000    
+
+ timestep =      1 timestep restarted because of balance errors or variable out of bounds
+    
+#### largest N-R corrections, timestep        1 ####
+ EQ1 R=   9.023     node=      5 x= 0.000     y= 0.000     z= 1.000    
+ EQ2 R=   20.15     node=      1 x= 0.000     y= 0.000     z= 0.000    
+
+ timestep less than daymin    1        0.320000E-05         0.00000    

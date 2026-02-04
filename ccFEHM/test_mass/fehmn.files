@@ -1,0 +1,8 @@
+input: mass_test.dat
+grida: C:\Users\dde62\code\PyFEHM\ccFEHM\test_mass\grid.inp
+rsto: mass_test.rsto
+outp: mass_test.outp
+check: mass_test.chk
+root:mass_test
+
+none

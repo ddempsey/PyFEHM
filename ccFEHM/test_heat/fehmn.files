@@ -1,0 +1,8 @@
+input: heat_test.dat
+grida: C:\Users\dde62\code\PyFEHM\ccFEHM\test_heat\grid.inp
+rsto: heat_test.rsto
+outp: heat_test.outp
+check: heat_test.chk
+root:heat_test
+
+none

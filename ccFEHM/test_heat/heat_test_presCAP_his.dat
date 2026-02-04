@@ -1,0 +1,6 @@
+TITLE = "FEHM V3.3.0win32 15-08-24 QA:0  02/02/2026  20:55:31"
+variables = "Time (days)" "Node       1" 
+text X=50.0 Y=95.0 AN=center T="# heat_test.dat"
+text X=50.0 Y=90.0 AN=center T="Capillary pressure (MPa)"
+  0.00000000       0.00000000    
+  1.00000000       0.00000000    
