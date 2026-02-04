@@ -4269,7 +4269,7 @@ class fdata(object):						#FEHM data file.
                 pyfehm_print('ERROR: cannot find trac file at location '+self.trac.file+'. Aborting...',self._silent)
                 adsf
             # open the auxiliary file and write it
-            fp = open(self.trac.file,'rU')
+            fp = open(self.trac.file,'r')
             lns = fp.readlines()
             # quality control
             for i,ln in enumerate(lns):

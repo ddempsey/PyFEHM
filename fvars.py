@@ -401,9 +401,9 @@ def dens(P,T,derivative=''):
     elif derivative in ['P','pressure']: k = 'dddp'
     elif derivative in ['T','temperature']: k = 'dddt'
     
-    arr_z = arrays[k][0:len(Pval)*len(Tval)].reshape(len(Pval),len(Tval)) 
-    fdens = interpolate.interp2d( Tval, Pval, arr_z )
-    dens_c = [fdens(t,p)[0] for t,p in zip(T,P)] 
+    arr_z = arrays[k][0:len(Pval)*len(Tval)].reshape(len(Pval),len(Tval))
+    fdens = interpolate.RegularGridInterpolator((Pval, Tval), arr_z, bounds_error=False, fill_value=None)
+    dens_c = [fdens((p, t)) for t,p in zip(T,P)] 
 
     return (dens_l,dens_v,np.array(dens_c))
 def enth(P,T,derivative=''):

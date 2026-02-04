@@ -414,14 +414,14 @@ class fcontour(object): 					# Reading and plotting methods associated with cont
 				files = FILES[:,i]
 				headers = []
 				for file in sort_tec_files(files):
-					fp = open(file,'rU')
+					fp = open(file,'r')
 					headers.append(fp.readline())
 					fp.close()
 				firstFile = self._detect_format(headers)
 				if self._format=='tec' and firstFile: 
 					headers = []
 					for file in sort_tec_files(files):
-						fp = open(file,'rU')
+						fp = open(file,'r')
 						fp.readline()
 						headers.append(fp.readline())
 						fp.close()
@@ -436,7 +436,7 @@ class fcontour(object): 					# Reading and plotting methods associated with cont
 			if not self._variables:
 				headers = []
 				for file in sort_tec_files(files):
-					fp = open(file,'rU')
+					fp = open(file,'r')
 					headers.append(fp.readline())
 					fp.close()
 				self._detect_format(headers)
@@ -507,7 +507,7 @@ class fcontour(object): 					# Reading and plotting methods associated with cont
 	def _read_data_avsx(self,files,mat_file):				# read data in AVSX format
 		datas = []
 		for file in sorted(files): 		# use alphabetical sorting
-			fp = open(file,'rU')
+			fp = open(file,'r')
 			header = fp.readline()
 			if file == sorted(files)[0]:
 				header = header.split('nodes at ')[1]
@@ -521,7 +521,7 @@ class fcontour(object): 					# Reading and plotting methods associated with cont
 		self._data[time] = dict([(var,data[:,icol]) for icol,var in enumerate(self.variables)])
 		
 		if mat_file and not self._material_properties:
-			fp = open(mat_file,'rU')
+			fp = open(mat_file,'r')
 			header = fp.readline()
 			self._material_properties = header.split(':')[1:]
 			lns = fp.readlines()
@@ -545,7 +545,7 @@ class fcontour(object): 					# Reading and plotting methods associated with cont
 		datas = []
 		for file in sorted(files):
 			first = (file == sorted(files)[0])
-			fp = open(file,'rU')
+			fp = open(file,'r')
 			lns = fp.readlines()
 			lns = lns[int(float(lns[0].split()[0]))+1:]
 			
@@ -582,7 +582,7 @@ class fcontour(object): 					# Reading and plotting methods associated with cont
 		datas = []
 		for file in sorted(files):
 			first = (file == sorted(files)[0])
-			fp = open(file,'rU')
+			fp = open(file,'r')
 			lni = file.split('.',1)[1]
 			
 			if first: 
@@ -610,7 +610,7 @@ class fcontour(object): 					# Reading and plotting methods associated with cont
 		self._data[time] = dict([(var,data[:,icol]) for icol,var in enumerate(self.variables)])
 		
 		if mat_file and not self._material_properties:
-			fp = open(mat_file,'rU')
+			fp = open(mat_file,'r')
 			header = fp.readline()
 			for mat_prop in header.split(',')[1:]:
 				if 'specific heat' not in mat_prop:
@@ -633,7 +633,7 @@ class fcontour(object): 					# Reading and plotting methods associated with cont
 		datas = []
 		for file in sorted(files):
 			first = (file == sorted(files)[0])
-			fp = open(file,'rU')
+			fp = open(file,'r')
 			ln = fp.readline()
 			has_xyz = False
 			while not ln.startswith('ZONE'):
@@ -685,7 +685,7 @@ class fcontour(object): 					# Reading and plotting methods associated with cont
 			data = np.transpose(np.array(data2))
 		self._data[time] = dict([(var,data[:,icol]) for icol,var in enumerate(self.variables)])
 		if mat_file and not self._material_properties:
-			fp = open(mat_file,'rU')
+			fp = open(mat_file,'r')
 			fp.readline()
 			header = fp.readline()
 			for mat_prop in header.split(' "')[5:]:
@@ -1582,7 +1582,7 @@ class fhistory(object):						# Reading and plotting methods associated with hist
 		for i,fname in enumerate(files):
 			if self._verbose:
 				pyfehm_print(fname,self._silent)
-			self._file=open(fname,'rU')
+			self._file=open(fname,'r')
 			header=self._file.readline()
 			if header.strip()=='': continue				# empty file
 			self._detect_format(header)
@@ -2049,7 +2049,7 @@ class fptrk(fhistory): 						# Derived class of fhistory, for particle tracking 
 		for i,fname in enumerate(files):
 			if self._verbose:
 				pyfehm_print(fname,self._silent)
-			self._file=open(fname,'rU')
+			self._file=open(fname,'r')
 			header=self._file.readline()
 			if header.strip()=='': continue				# empty file
 			header=self._file.readline()

@@ -21,7 +21,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
 Public License for more details.
 """
 
-import os,platform,pkgutil
+import os,platform
 
 from types import *
 
@@ -169,10 +169,10 @@ class fdflt(object):
         # check to see if rc file exist, update defaults
         self._check_rc()
     def _check_rc(self):
-        # check if pyfehmrc file exists        
-        rc_lib = pkgutil.get_loader('fdflt').path.split(os.sep)
-        rc_lib1 = os.sep.join(rc_lib[:-1])+os.sep+'.pyfehmrc'
-        rc_lib2 = os.sep.join(rc_lib[:-1])+os.sep+'pyfehmrc'
+        # check if pyfehmrc file exists
+        rc_lib = os.path.dirname(os.path.abspath(__file__))
+        rc_lib1 = rc_lib+os.sep+'.pyfehmrc'
+        rc_lib2 = rc_lib+os.sep+'pyfehmrc'
         rc_home1 = os.path.expanduser('~')+os.sep+'.pyfehmrc'
         rc_home2 = os.path.expanduser('~')+os.sep+'pyfehmrc'
         rc_cur1 = os.path.expanduser('.')+os.sep+'.pyfehmrc'
