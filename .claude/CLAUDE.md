@@ -66,3 +66,10 @@ Read `SKILL.md` for workflows on building and debugging simulations.
 **Mistake**: Simulation failed because CO2 property table not found
 **Resolution**: Added `dat.files.co2in = os.path.join(PYFEHM_ROOT, 'co2_interp_table.txt')`
 **Remember**: CO2 simulations require explicit path to co2_interp_table.txt via dat.files.co2in
+
+### [2026-02-06] [FEHM] [PyFEHM] Use fpost for parsing FEHM output
+
+**Context**: Reading pressure history and contour data from FEHM simulations
+**Mistake**: Wrote custom CSV/history parsers, which got node column ordering wrong (assumed injection node was first column; FEHM orders by node number)
+**Resolution**: PyFEHM provides `fpost.fcontour` and `fpost.fhistory` classes that handle all output formats, node indexing, and variable lookup correctly
+**Remember**: Always use `fpost.fcontour(filename)` and `fpost.fhistory(filename)` to parse FEHM output. They handle node ordering, format detection (tec/surf/default), and provide dict-based access by variable and node number. Never write custom parsers.

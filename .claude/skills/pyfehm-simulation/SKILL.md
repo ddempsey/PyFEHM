@@ -13,6 +13,7 @@ Use this skill when:
 
 | Resource | Purpose |
 |----------|---------|
+| `PYTHON_API.md` | **Start here** — Overview of all PyFEHM modules and their APIs |
 | `SIMULATION_CHECKLIST.md` | Minimum requirements for valid simulation |
 | `MACROS.md` | Common macros with PyFEHM usage examples |
 | `macros/INDEX.md` | Detailed FEHM macro reference (input file format) |
@@ -20,6 +21,41 @@ Use this skill when:
 | `ERROR_PATTERNS.md` | Known errors and diagnostic steps |
 | `TIPS.md` | Lessons learned from past sessions |
 | `equations/*.md` | FEHM physics and governing equations |
+
+---
+
+## When to Consult the Python API Guide
+
+Read `PYTHON_API.md` when you need to:
+
+### Understand Which Module Does What
+PyFEHM is split across several modules with distinct responsibilities:
+- **fdata** — simulation container, macro management, run control
+- **fgrid** — grid creation (Cartesian, radial), spatial search, node/element access
+- **fzone** — zone definition, `fix_*` boundary condition shortcuts
+- **fboun** — time-varying boundary conditions (ramps, schedules)
+- **fpost** — reading contour snapshots (`fcontour`) and time-series history (`fhistory`)
+- **fvars** — fluid property lookups: density, viscosity, enthalpy, saturation curves
+
+### Read Output from Simulations
+**Always use `fpost`** — never write custom parsers for FEHM output files.
+The API guide documents variable name mappings (e.g., CSV header `"Liquid Pressure (MPa)"` → `'P'`),
+indexing conventions (0-indexed arrays vs 1-based node numbers), and format quirks
+(surf format lacks coordinates — must read from `grid.inp`).
+
+### Set Up Time-Varying BCs
+Use `fboun` for boundaries that change over time (injection ramp-up, pressure schedules).
+The API guide covers the `type` parameter (`'ti'` vs `'ti_linear'`), variable names
+(`'pw'`, `'ft'`, `'dsw'`), and the relationship to FEHM's `boun` macro.
+
+### Query Fluid Properties
+The `fvars` module provides EOS lookups without running a simulation — useful for
+computing injection rates, analytical comparisons, or validating reservoir conditions.
+
+### Build a Radial Grid
+The `radial=True` parameter in `dat.grid.make()` creates a 1-degree cylindrical wedge.
+The API guide explains the coordinate transformation and how boundary zones map to
+wellbore (XMIN) and outer boundary (XMAX).
 
 ---
 
@@ -285,32 +321,33 @@ if result.returncode != 0:
 
 ```
 .claude/skills/pyfehm-simulation/
-├── SKILL.md                    # This file
-├── equations/
+├── SKILL.md                    # This file — workflows and when to read what
+├── PYTHON_API.md               # Python API tour: fdata, fgrid, fzone, fboun, fpost, fvars
+├── SIMULATION_CHECKLIST.md     # Required simulation components
+├── MACROS.md                   # Common macros with PyFEHM examples
+├── ERROR_PATTERNS.md           # Known error patterns and solutions
+├── TIPS.md                     # Appendable troubleshooting tips
+├── equations/                  # FEHM physics and governing equations
 │   ├── FLOW_ENERGY.md          # Mass, energy, air-water conservation
 │   ├── TRANSPORT.md            # Solute, reactive transport, particles
 │   ├── CONSTITUTIVE.md         # EOS, relative perm, capillary pressure
 │   └── FRACTURE.md             # Dual porosity/double permeability
-├── macros/                     # Detailed FEHM macro reference (from UM)
-│   ├── INDEX.md                # Macro index and quick reference
-│   ├── boun.md                 # Time-dependent boundary conditions
-│   ├── cond.md                 # Thermal conductivity
-│   ├── cont.md                 # Contour output control
-│   ├── coor.md                 # Node coordinates
-│   └── ...                     # Many more macro files
-├── SIMULATION_CHECKLIST.md     # Required simulation components
-├── MACROS.md                   # Common macros with PyFEHM examples
-├── TIPS.md                     # Appendable troubleshooting tips
-└── ERROR_PATTERNS.md           # Known error patterns and solutions
+└── macros/                     # Detailed FEHM macro reference (from UM)
+    ├── INDEX.md                # Macro index and quick reference
+    ├── boun.md                 # Time-dependent boundary conditions
+    ├── cond.md                 # Thermal conductivity
+    ├── cont.md                 # Contour output control
+    ├── coor.md                 # Node coordinates
+    └── ...                     # Many more macro files
 ```
 
 ---
 
 ## See Also
 
-- PyFEHM documentation and examples in the repository
+- `PYTHON_API.md` for the full Python API tour (fdata, fgrid, fzone, fboun, fpost, fvars)
 - FEHM user manual for detailed macro syntax
-- `fdata.py`, `fgrid.py`, `fzone.py` for implementation details
+- Source files `fdata.py`, `fgrid.py`, `fpost.py`, `fvars.py` for implementation details
 
 ---
 
