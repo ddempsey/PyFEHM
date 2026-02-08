@@ -1,9 +1,0 @@
-FEHM V3.3.0win32 15-08-24 QA:0  02/02/2026  20:55:31
-# heat_test.dat
-Output file format: Tecplot
-Parameters written to individual history files:
- Water, vapor, and capillary pressure Temperature
-for the following nodes:
-Number of output nodes:    1
-       1   0.00000000       0.00000000       0.00000000    
-

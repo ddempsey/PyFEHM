@@ -1,3 +1,6 @@
 .vscode/
 *.pyc
 build
+ccFEHM/test_heat/
+ccFEHM/test_mass/
+ccFEHM/*.png
