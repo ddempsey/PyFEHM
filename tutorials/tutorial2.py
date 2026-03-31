@@ -25,7 +25,7 @@ Za_top = -0.8e3
 
 Z = list(np.linspace(Z0,Za_base,5)) + list(np.linspace(Za_base,Za_top,11))[1:] + list(np.linspace(Za_top,Z1,5))[1:]
 
-dat.grid.make('quarterGrid.inp', x= X, y = X, z = Z)
+dat.grid.make(gridfilename='quarterGrid.inp', x= X, y = X, z = Z)
 
 dat.grid.plot('quarterGrid.png', angle = [45,45], color = 'b', cutaway = [proX,proY,-1000])
 

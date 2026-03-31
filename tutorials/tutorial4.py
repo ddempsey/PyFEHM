@@ -10,7 +10,7 @@ dat = fdata(work_dir=root) 					# creates an 'empty' input file
 
 # 7.1.2 Grid generation
 x = np.linspace(0,10,11)
-dat.grid.make(root+'_GRID.inp',x=x,y=x,z=x)
+dat.grid.make(gridfilename=root+'_GRID.inp',x=x,y=x,z=x)
 dat.grid.plot(root+'_GRID.png',color='r',angle=[45,45])
 
 # 7.1.3 Zone creation

@@ -523,7 +523,7 @@ class fgrid(object):				#Grid object.
 		elif isAvs:
 			self._read_avs()		
 			newgridfilename = self._path.full_path.split('.')[:-1]
-			newgridfilename = string.join(newgridfilename,'.')+'.inp'
+			newgridfilename = ".".join(newgridfilename)+'.inp'
 			if os.path.isfile(newgridfilename):
 				newgridfilename = newgridfilename[:-4] + '_new' + newgridfilename[-4:]
 			self.write(newgridfilename, 'fehm')		# write out equivalent fehm grid
@@ -548,7 +548,6 @@ class fgrid(object):				#Grid object.
 			nd = infile.readline().strip().split()
 			new_node = fnode(index=int(nd[0]),position=np.array([float(nd[1]),float(nd[2]),float(nd[3])]))
 			self.add_node(new_node)	
-		
 		infile.readline()
 		infile.readline()
 		N = infile.readline()
@@ -612,7 +611,6 @@ class fgrid(object):				#Grid object.
 			nd = infile.readline().strip().split()	# read line
 			new_node = fnode(index=int(nd[0]),position=np.array([float(nd[1]),float(nd[2]),float(nd[3])]))
 			self.add_node(new_node)	 				# add node object
-		
 		N = N_el
 		connectivity = None
 		for i in range(N): 						# FOR each element
